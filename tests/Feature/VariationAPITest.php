@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Variation;
 use App\Enums\UserRole;
 use App\Models\Benefit;
+use App\Models\Employee;
 
 class VariationAPITest extends TestCase
 {
@@ -111,5 +112,64 @@ class VariationAPITest extends TestCase
 
         $response = $this->postJson('/api/variations', $variationData);
         $response->assertStatus(403);
+    }
+
+    // Test redeem endpoint as user company with enough credits
+    public function test_employee_can_redeem_variation_if_has_enough_credits()
+    {
+        $user = User::factory()->create(['role' => UserRole::USER_COMPANY]);
+        $employee = Employee::factory()->create([
+            'user_id' => $user->id,
+            'credits' => 500
+        ]);
+
+        $variation = Variation::factory()->create([
+            'price_credits' => 300
+        ]);
+
+        Sanctum::actingAs($user);
+
+        $response = $this->postJson("/api/variations/{$variation->id}/redeem");
+
+        $response->assertStatus(201);
+
+        // The gift card should be created
+        $this->assertDatabaseHas('orders', [
+            'variation_id' => $variation->id,
+            'employee_id' => $employee->id,
+            'cost' => $variation->cost,
+            'sale_price' => $variation->price,
+            'sale_price_credits' => $variation->price_credits
+        ]);
+
+        // The employee's credits should be reduced
+        $this->assertDatabaseHas('employees', [
+            'id' => $employee->id,
+            'credits' => 200,
+        ]);
+    }
+
+    // Test redeem endpoint as user company with insufficient credits
+    public function test_employee_cannot_redeem_if_insufficient_credits()
+    {
+        $user = User::factory()->create(['role' => UserRole::USER_COMPANY]);
+        $employee = Employee::factory()->create([
+            'user_id' => $user->id,
+            'credits' => 100
+        ]);
+
+        $variation = Variation::factory()->create([
+            'price_credits' => 300
+        ]);
+
+        Sanctum::actingAs($user);
+
+        $response = $this->postJson("/api/variations/{$variation->id}/redeem");
+
+        $response->assertStatus(422);
+
+        $this->assertDatabaseMissing('gift_cards', [
+            'variation_id' => $variation->id,
+        ]);
     }
 }

@@ -46,6 +46,14 @@ class VariationPolicy
     }
 
     /**
+     * Determine whether the user redeem a variation.
+     */
+    public function redeem(User $user, Variation $variation): bool
+    {
+        return  $user->role === UserRole::USER_COMPANY;
+    }
+
+    /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Variation $variation): bool

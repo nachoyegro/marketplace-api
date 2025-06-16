@@ -45,8 +45,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('benefits', BenefitController::class);
 });
-// Resource route for Variations
 
+// Resource route for Variations
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('variations', VariationController::class);
 });
+
+Route::post('/variations/{variation}/redeem', [VariationController::class, 'redeem'])
+    ->middleware('auth:sanctum');

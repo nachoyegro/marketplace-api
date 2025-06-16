@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreVariationRequest;
 use App\Http\Requests\UpdateVariationRequest;
-use App\Models\Variation;
 use App\Http\Resources\VariationResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use App\Models\Variation;
+use App\Models\GiftCard;
+use App\Models\Order;
+use App\Services\RedeemVariationService;
 
 class VariationController extends Controller
 {
@@ -53,6 +57,25 @@ class VariationController extends Controller
         ]);
 
         return new VariationResource($variation);
+    }
+
+    /**
+     * Redeem a variation for the authenticated user (employee).
+     * @param Request $request
+     * @param Variation $variation
+     * @param RedeemVariationService $service
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function redeem(Request $request, Variation $variation, RedeemVariationService $service)
+    {
+        $this->authorize('redeem', $variation);
+
+        $giftCard = $service->execute($request->user(), $variation);
+
+        return response()->json([
+            'message' => 'Gift card redeemed successfully.',
+            'gift_card' => $giftCard,
+        ], 201);
     }
 
     /**
