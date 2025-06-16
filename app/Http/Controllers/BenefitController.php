@@ -6,23 +6,23 @@ use App\Http\Requests\StoreBenefitRequest;
 use App\Http\Requests\UpdateBenefitRequest;
 use App\Models\Benefit;
 use App\Http\Resources\BenefitResource;
+use Illuminate\Http\Request;
 
 class BenefitController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return new BenefitResource(Benefit::paginate());
-    }
+        $this->authorize('viewAny', Benefit::class);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $benefits = Benefit::query()
+            ->when($request->filled('name'), fn($q) => $q->filterByName($request->name))
+            ->when($request->filled('country_code'), fn($q) => $q->filterByCountryCode($request->country_code))
+            ->paginate(10);
+
+        return BenefitResource::collection($benefits);
     }
 
     /**
@@ -30,7 +30,14 @@ class BenefitController extends Controller
      */
     public function store(StoreBenefitRequest $request)
     {
-        //
+        $this->authorize('create', Benefit::class);
+
+        $validated = $request->validated();
+        $benefit = Benefit::create([
+            ...$validated
+        ]);
+
+        return new BenefitResource($benefit);
     }
 
     /**

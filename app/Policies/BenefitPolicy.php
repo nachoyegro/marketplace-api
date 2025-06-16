@@ -2,9 +2,10 @@
 
 namespace App\Policies;
 
+use Illuminate\Auth\Access\Response;
 use App\Models\Benefit;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use App\Enums\UserRole;
 
 class BenefitPolicy
 {
@@ -13,7 +14,9 @@ class BenefitPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return  $user->role === UserRole::ADMIN ||
+                $user->role === UserRole::ADMIN_COMPANY ||
+                $user->role === UserRole::USER_COMPANY;
     }
 
     /**
@@ -21,7 +24,9 @@ class BenefitPolicy
      */
     public function view(User $user, Benefit $benefit): bool
     {
-        return false;
+        return  $user->role === UserRole::ADMIN ||
+                $user->role === UserRole::ADMIN_COMPANY ||
+                $user->role === UserRole::USER_COMPANY;
     }
 
     /**
@@ -29,7 +34,7 @@ class BenefitPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return  $user->role === UserRole::ADMIN;
     }
 
     /**
@@ -37,7 +42,7 @@ class BenefitPolicy
      */
     public function update(User $user, Benefit $benefit): bool
     {
-        return false;
+        return  $user->role === UserRole::ADMIN;
     }
 
     /**
@@ -45,7 +50,7 @@ class BenefitPolicy
      */
     public function delete(User $user, Benefit $benefit): bool
     {
-        return false;
+        return  $user->role === UserRole::ADMIN;
     }
 
     /**

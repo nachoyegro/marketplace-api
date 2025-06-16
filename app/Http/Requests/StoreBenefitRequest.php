@@ -11,7 +11,7 @@ class StoreBenefitRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return auth()->user()->can('create', Order::class);
     }
 
     /**
@@ -22,7 +22,10 @@ class StoreBenefitRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'brand_id' => 'required|exists:brands,id',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'country_code' => 'required|string|size:2',
         ];
     }
 }

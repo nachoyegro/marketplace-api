@@ -15,7 +15,7 @@ class Benefit extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['name', 'description', 'country_code'];
+    protected $fillable = ['name', 'description', 'country_code', 'brand_id'];
 
 
     /**

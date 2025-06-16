@@ -42,6 +42,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 // Resource route for Benefits
-Route::resource('benefits', BenefitController::class);
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::resource('benefits', BenefitController::class);
+});
 // Resource route for Variations
 Route::resource('variations', VariationController::class);
