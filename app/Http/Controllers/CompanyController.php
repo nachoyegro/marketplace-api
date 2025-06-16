@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Company;
 use App\Http\Resources\CompanyResource;
+use App\Http\Requests\StoreCompanyRequest;
 
 class CompanyController extends Controller
 {
@@ -15,9 +16,7 @@ class CompanyController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->user()->cannot('viewAny', Company::class)) {
-            abort(403);
-        }
+        $this->authorize('viewAny', Company::class);
 
         $companies = Company::query()
             ->when($request->filled('name'), fn($q) => $q->filterByName($request->name))
@@ -29,23 +28,14 @@ class CompanyController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCompanyRequest $request)
     {
-        
-        if ($request->user()->cannot('create', Company::class)) {
-            abort(403);
-        }
-    
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'billing_address' => 'required|string|max:255',
-        ]);
-    
-        $employee = Company::create([
+        $validated = $request->validated();
+        $order = Company::create([
             ...$validated
         ]);
     
-        return new CompanyResource($employee);
+        return new CompanyResource($order);
     }
 
     /**
@@ -53,10 +43,7 @@ class CompanyController extends Controller
      */
     public function show(Request $request, Company $company)
     {
-        if ($request->user()->cannot('view', $company)) {
-            abort(403);
-        }
-    
+        $this->authorize('view', $company);
         return new CompanyResource($company);
     }
 
@@ -65,12 +52,8 @@ class CompanyController extends Controller
      */
     public function update(Request $request, Company $company)
     {
-        if ($request->user()->cannot('update', $company)) {
-            abort(403);
-        }
-    
+        $this->authorize('update', $company);
         $company->update($request->all());
-    
         return new CompanyResource($company);
     }
 
@@ -79,12 +62,8 @@ class CompanyController extends Controller
      */
     public function destroy(Request $request, Company $company)
     {
-        if ($request->user()->cannot('delete', $company)) {
-            abort(403);
-        }
-    
+        $this->authorize('delete', $company);
         $company->delete();
-    
         return response()->noContent();
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use App\Http\Resources\EmployeeResource;
+use App\Http\Requests\StoreEmployeeRequest;
 use Illuminate\Http\Request;
 use App\Enums\UserRole;
 
@@ -15,9 +16,7 @@ class EmployeeController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->user()->cannot('viewAny', Employee::class)) {
-            abort(403);
-        }
+        $this->authorize('viewAny', Employee::class);
         $user = $request->user();
 
         $employees = Employee::query()
@@ -35,26 +34,14 @@ class EmployeeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        if ($request->user()->cannot('create', Employee::class)) {
-            abort(403);
-        }
-    
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'company_id' => 'required|exists:companies,id',
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'birth_date' => 'required|date',
-            'credits' => 'required|integer|min:0',
-        ]);
-    
-        $employee = Employee::create([
+    public function store(StoreEmployeeRequest $request)
+    {        
+        $validated = $request->validated();
+        $order = Employee::create([
             ...$validated
         ]);
     
-        return new EmployeeResource($employee);
+        return new EmployeeResource($order);
     }
 
     /**
@@ -62,10 +49,7 @@ class EmployeeController extends Controller
      */
     public function show(Request $request, Employee $employee)
     {
-        if ($request->user()->cannot('view', $employee)) {
-            abort(403);
-        }
-    
+        $this->authorize('view', $employee);
         return new EmployeeResource($employee);
     }
 
@@ -74,12 +58,8 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, Employee $employee)
     {
-        if ($request->user()->cannot('update', $employee)) {
-            abort(403);
-        }
-    
+        $this->authorize('update', $employee);
         $employee->update($request->all());
-    
         return new EmployeeResource($employee);
     }
 
@@ -88,12 +68,8 @@ class EmployeeController extends Controller
      */
     public function destroy(Request $request, Employee $employee)
     {
-        if ($request->user()->cannot('delete', $employee)) {
-            abort(403);
-        }
-    
+        $this->authorize('delete', $employee);
         $employee->delete();
-    
         return response()->noContent();
     }
     
