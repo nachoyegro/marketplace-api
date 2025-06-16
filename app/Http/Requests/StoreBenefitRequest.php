@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Benefit;
 
 class StoreBenefitRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StoreBenefitRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->user()->can('create', Order::class);
+        return auth()->user()->can('create', Benefit::class);
     }
 
     /**
