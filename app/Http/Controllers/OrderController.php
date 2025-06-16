@@ -10,23 +10,35 @@ use Illuminate\Http\Request;
 
 use App\Models\Company;
 use App\Models\Order;
+use App\Models\User;
+use App\Enums\UserRole;
 
 class OrderController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return new OrderResource(Order::paginate());
-    }
+        if ($request->user()->cannot('viewAny', Order::class)) {
+            abort(403);
+        }
+        $user = $request->user();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $orders = Order::query()
+            ->when($request->filled('employee'), fn($q) => $q->filterByEmployee($request->employee))
+            ->when($request->filled('company'), fn($q) => $q->filterByCompany($request->company))
+            ->when(
+                $user->role === UserRole::ADMIN_COMPANY,
+                fn($q) => $q->where('company_id', $user->getCompanyId())
+            )
+            ->when(
+                $user->role === UserRole::USER_COMPANY,
+                fn($q) => $q->where('employee_id', $user->getEmployeeId())
+            )
+            ->paginate(10);
+
+        return OrderResource::collection($orders);
     }
 
     /**
@@ -34,7 +46,12 @@ class OrderController extends Controller
      */
     public function store(StoreOrderRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $order = Order::create([
+            ...$validated
+        ]);
+    
+        return new OrderResource($order);
     }
 
     /**
@@ -42,15 +59,11 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        //
-    }
+        if (auth()->user()->cannot('view', $order)) {
+            abort(403);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Order $order)
-    {
-        //
+        return new OrderResource($order);
     }
 
     /**

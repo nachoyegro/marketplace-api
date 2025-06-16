@@ -64,4 +64,9 @@ class User extends Authenticatable
     {
         return $this->employee?->company_id;
     }
+    
+    public function getEmployeeId(): ?int
+    {
+        return $this->employee?->id;
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Order;
 
 class StoreOrderRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StoreOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return auth()->user()->can('create', Order::class);
     }
 
     /**
@@ -21,8 +22,15 @@ class StoreOrderRequest extends FormRequest
      */
     public function rules(): array
     {
+        
         return [
-            //
+            'employee_id' => 'required|exists:employees,id',
+            'company_id' => 'required|exists:companies,id',
+            'variation_id' => 'required|exists:variations,id',
+            'gift_card_id' => 'required|exists:gift_cards,id',
+            'cost' => 'required|decimal:0,2|min:0',
+            'sale_price' => 'required|decimal:0,2|min:0',
+            'sale_price_credits' => 'required|integer|min:0',
         ];
     }
 }
