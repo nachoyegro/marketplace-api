@@ -15,6 +15,10 @@ class CompanyController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->user()->cannot('viewAny', Company::class)) {
+            abort(403);
+        }
+
         $companies = Company::query()
             ->when($request->filled('name'), fn($q) => $q->filterByName($request->name))
             ->paginate(10);
@@ -27,31 +31,61 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
+        if ($request->user()->cannot('create', Company::class)) {
+            abort(403);
+        }
+    
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'billing_address' => 'required|string|max:255',
+        ]);
+    
+        $employee = Company::create([
+            ...$validated
+        ]);
+    
+        return new CompanyResource($employee);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, Company $company)
     {
-        //
+        if ($request->user()->cannot('view', $company)) {
+            abort(403);
+        }
+    
+        return new CompanyResource($company);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Company $company)
     {
-        //
+        if ($request->user()->cannot('update', $company)) {
+            abort(403);
+        }
+    
+        $company->update($request->all());
+    
+        return new CompanyResource($company);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, Company $company)
     {
-        //
+        if ($request->user()->cannot('delete', $company)) {
+            abort(403);
+        }
+    
+        $company->delete();
+    
+        return response()->noContent();
     }
 
     /**

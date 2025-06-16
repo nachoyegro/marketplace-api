@@ -27,8 +27,10 @@ Route::get('/consumption-last-week', [OrderController::class, 'consumptionLastWe
     ->middleware(['auth:sanctum', 'role:admin']);
 
 // Resource route for companies
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::resource('companies', CompanyController::class);
+});
 
-Route::resource('companies', CompanyController::class);
 // Resource route for Employees
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('employees', EmployeeController::class);

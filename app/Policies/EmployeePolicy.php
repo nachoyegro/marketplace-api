@@ -11,6 +11,9 @@ class EmployeePolicy
 {
     /**
      * Determine whether the user can view any models.
+     * This is only allowed for:
+     * - Admins
+     * - Admins of the company
      */
     public function viewAny(User $user): bool
     {
