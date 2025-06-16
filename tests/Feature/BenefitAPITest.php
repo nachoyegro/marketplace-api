@@ -17,7 +17,7 @@ class BenefitAPITest extends TestCase
 
     // INDEX
     
-    // Test the company list endpoint without authentication
+    // Test the benefit list endpoint without authentication
     public function test_list_requires_authentication() 
     {
         $response = $this->getJson('/api/benefits');

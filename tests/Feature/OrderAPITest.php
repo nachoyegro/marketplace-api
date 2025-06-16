@@ -20,14 +20,14 @@ class OrderAPITest extends TestCase
 
     // INDEX
 
-    // Test the company list endpoint without authentication
+    // Test the order list endpoint without authentication
     public function test_list_requires_authentication() 
     {
         $response = $this->getJson('/api/orders');
         $response->assertStatus(401);
     }
 
-    // Test the company list endpoint with admin role
+    // Test the order list endpoint with admin role
     public function test_list_as_admin() 
     {
         $user = User::factory()->create(['role' => UserRole::ADMIN]);
@@ -37,7 +37,7 @@ class OrderAPITest extends TestCase
         $response->assertStatus(200);
     }
 
-    // Test the company list endpoint with user_company role, getting orders from own company
+    // Test the order list endpoint with user_company role, getting orders from own company
     public function test_list_as_admin_company_from_own_company() 
     {
         $company = Company::factory()->create();
@@ -68,7 +68,7 @@ class OrderAPITest extends TestCase
                  ->assertJsonCount(1, 'data');
     }
 
-    // Test the company list endpoint with user_company role, getting orders from other company
+    // Test the order list endpoint with user_company role, getting orders from other company
     // with multiple orders, one from own company and one from other company
     public function test_list_as_admin_company_from_other_company() 
     {
