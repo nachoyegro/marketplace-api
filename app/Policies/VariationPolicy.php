@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\Variation;
 use Illuminate\Auth\Access\Response;
+use App\Enums\UserRole;
 
 class VariationPolicy
 {
@@ -13,7 +14,9 @@ class VariationPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return  $user->role === UserRole::ADMIN ||
+                $user->role === UserRole::ADMIN_COMPANY ||
+                $user->role === UserRole::USER_COMPANY;
     }
 
     /**
@@ -21,7 +24,9 @@ class VariationPolicy
      */
     public function view(User $user, Variation $variation): bool
     {
-        return false;
+        return  $user->role === UserRole::ADMIN ||
+                $user->role === UserRole::ADMIN_COMPANY ||
+                $user->role === UserRole::USER_COMPANY;
     }
 
     /**
@@ -29,7 +34,7 @@ class VariationPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return  $user->role === UserRole::ADMIN;
     }
 
     /**
@@ -37,7 +42,7 @@ class VariationPolicy
      */
     public function update(User $user, Variation $variation): bool
     {
-        return false;
+        return  $user->role === UserRole::ADMIN;
     }
 
     /**
@@ -45,7 +50,7 @@ class VariationPolicy
      */
     public function delete(User $user, Variation $variation): bool
     {
-        return false;
+        return  $user->role === UserRole::ADMIN;
     }
 
     /**

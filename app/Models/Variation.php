@@ -16,6 +16,7 @@ class Variation extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'benefit_id',
         'title',
         'cost',
         'price',

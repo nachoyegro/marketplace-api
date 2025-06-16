@@ -45,23 +45,19 @@ class BenefitController extends Controller
      */
     public function show(Benefit $benefit)
     {
-        //
+        $this->authorize('view', $benefit);
+        return new BenefitResource($benefit);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Benefit $benefit)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateBenefitRequest $request, Benefit $benefit)
     {
-        //
+        $this->authorize('update', $benefit);
+        $benefit->update($request->all());
+        return new BenefitResource($benefit);
     }
 
     /**
@@ -69,6 +65,8 @@ class BenefitController extends Controller
      */
     public function destroy(Benefit $benefit)
     {
-        //
+        $this->authorize('delete', $benefit);
+        $benefit->delete();
+        return response()->noContent();
     }
 }

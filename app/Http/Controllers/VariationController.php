@@ -6,15 +6,22 @@ use App\Http\Requests\StoreVariationRequest;
 use App\Http\Requests\UpdateVariationRequest;
 use App\Models\Variation;
 use App\Http\Resources\VariationResource;
+use Illuminate\Http\Request;
 
 class VariationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return new VariationResource(Variation::paginate());
+        $this->authorize('viewAny', Variation::class);
+
+        $variations = Variation::query()
+            ->when($request->filled('title'), fn($q) => $q->filterByName($request->title))
+            ->paginate(10);
+
+        return VariationResource::collection($variations);
     }
 
     /**
@@ -22,7 +29,15 @@ class VariationController extends Controller
      */
     public function create()
     {
-        //
+        
+        $this->authorize('create', Variation::class);
+
+        $validated = $request->validated();
+        $variation = Variation::create([
+            ...$validated
+        ]);
+
+        return new VariationResource($variation);
     }
 
     /**
@@ -30,7 +45,14 @@ class VariationController extends Controller
      */
     public function store(StoreVariationRequest $request)
     {
-        //
+        $this->authorize('create', Variation::class);
+
+        $validated = $request->validated();
+        $variation = Variation::create([
+            ...$validated
+        ]);
+
+        return new VariationResource($variation);
     }
 
     /**

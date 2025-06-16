@@ -11,7 +11,7 @@ class StoreVariationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return auth()->user()->can('create', Variation::class);
     }
 
     /**
@@ -22,7 +22,12 @@ class StoreVariationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'benefit_id' => 'required|exists:benefits,id',
+            'title' => 'required|string|max:255',
+            'cost' => 'required|decimal:0,2',
+            'price' => 'required|decimal:0,2',
+            'price_credits' => 'required|integer|min:0',
         ];
     }
 }
+
