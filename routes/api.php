@@ -8,10 +8,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\BenefitController;
 use App\Http\Controllers\VariationController;
 use App\Http\Controllers\OrderController;
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+use App\Http\Controllers\UserController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -25,6 +22,13 @@ Route::get('billing-by-company', [CompanyController::class, 'billingByCompany'])
 
 Route::get('consumption-last-week', [OrderController::class, 'consumptionLastWeek'])
     ->middleware(['auth:sanctum', 'role:admin']);
+
+
+// Resource route for users
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::resource('/users', UserController::class);
+})->middleware('auth:sanctum');
+    
 
 // Resource route for companies
 Route::middleware(['auth:sanctum'])->group(function () {
